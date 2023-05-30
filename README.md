@@ -7,6 +7,7 @@ Links:
 - Arxiv paper: COMING SOON
 - Colab quickstart: COMING SOON
 - Interspeech proceedings: proceedings published in August 2023
+- Demo page with samples: [https://bshall.github.io/knn-vc/](https://bshall.github.io/knn-vc/)
 
 
 ![kNN-VC method](./knn-vc.png)
