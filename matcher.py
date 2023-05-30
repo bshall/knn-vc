@@ -111,7 +111,7 @@ class KNeighborsVC(nn.Module):
 
         # extract the representation of each layer
         wav_input_16khz = x.to(self.device)
-        if torch.allclose(weights, SPEAKER_INFORMATION_WEIGHTS):
+        if torch.allclose(weights, self.weighting):
             # use fastpath
             features = self.wavlm.extract_features(wav_input_16khz, output_layer=SPEAKER_INFORMATION_LAYER, ret_layer_results=False)[0]
             features = features.squeeze(0)
