@@ -118,7 +118,7 @@ class KNeighborsVC(nn.Module):
     @torch.inference_mode()
     def match(self, query_seq: Tensor, matching_set: Tensor, synth_set: Tensor = None, 
               topk: int = 4, tgt_loudness_db: float | None = -16,
-              target_duration: float | None = None) -> Tensor:
+              target_duration: float | None = None, device: str | None = None) -> Tensor:
         """ Given `query_seq`, `matching_set`, and `synth_set` tensors of shape (N, dim), perform kNN regression matching
         with k=`topk`. Inputs:
             - `query_seq`: Tensor (N1, dim) of the input/source query features.
@@ -129,21 +129,23 @@ class KNeighborsVC(nn.Module):
             - `topk`: k in the kNN -- the number of nearest neighbors to average over.
             - `tgt_loudness_db`: float db used to normalize the output volume. Set to None to disable. 
             - `target_duration`: if set to a float, interpolate resulting waveform duration to be equal to this value in seconds.
+            - `device`: if None, uses default device at initialization. Otherwise uses specified device
         Returns:
             - converted waveform of shape (T,)
         """
         if synth_set is None: synth_set = matching_set
+        device = torch.device(device) if device is not None else self.device
 
         if target_duration is not None:
             target_samples = int(target_duration*self.sr)
             scale_factor = (target_samples/self.hop_length) / query_seq.shape[0] # n_targ_feats / n_input_feats
             query_seq = F.interpolate(query_seq.T[None], scale_factor=scale_factor, mode='linear')[0].T
 
-        dists = fast_cosine_dist(query_seq.cpu(), matching_set.cpu())
+        dists = fast_cosine_dist(query_seq.to(device), matching_set.to(device), device=device)
         best = dists.topk(k=topk, largest=False, dim=-1)
-        out_feats = synth_set[best.indices].mean(dim=1).cpu()
+        out_feats = synth_set[best.indices].mean(dim=1)
         
-        prediction = self.vocode(out_feats[None].cuda()).cpu().squeeze()
+        prediction = self.vocode(out_feats[None].to(device)).cpu().squeeze()
         
         # normalization
         if tgt_loudness_db is not None:
