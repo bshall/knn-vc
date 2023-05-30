@@ -48,7 +48,7 @@ matching_set = knn_vc.get_matching_set(ref_wav_paths)
 
 ```python
 out_wav = knn_vc.match(query_seq, matching_set, topk=4)
-# out_wav is (T,) tensor converted output wav using k=4 for kNN.
+# out_wav is (T,) tensor converted 16kHz output wav using k=4 for kNN.
 ```
 
 That's it! These default settings provide pretty good results, but feel free to modify the kNN `topk` or use the non-prematched vocoder.

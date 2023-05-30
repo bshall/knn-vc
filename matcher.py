@@ -21,6 +21,7 @@ SPEAKER_INFORMATION_WEIGHTS = [
     0, # layer 22 
     0, 0 # layer 23-24
 ]
+SPEAKER_INFORMATION_LAYER = 6
 
 
 def fast_cosine_dist(source_feats: Tensor, matching_pool: Tensor, device: str = 'cpu') -> Tensor:
@@ -84,7 +85,9 @@ class KNeighborsVC(nn.Module):
 
     @torch.inference_mode()
     def get_features(self, path, weights=None, vad_trigger_level=0):
-        """Returns features of `path` waveform as a tensor of shape (seq_len, dim)"""
+        """Returns features of `path` waveform as a tensor of shape (seq_len, dim), optionally perform VAD trimming
+        on start/end with `vad_trigger_level`.
+        """
         # load audio
         if weights == None: weights = self.weighting
         if type(path) in [str, Path]:
@@ -105,13 +108,20 @@ class KNeighborsVC(nn.Module):
                 waveform_reversed_front_trim, sr, [["reverse"]]
             )
             x = waveform_end_trim
+
         # extract the representation of each layer
         wav_input_16khz = x.to(self.device)
-        rep, layer_results = self.wavlm.extract_features(wav_input_16khz, output_layer=self.wavlm.cfg.encoder_layers, ret_layer_results=True)[0]
-        features = torch.cat([x.transpose(0, 1) for x, _ in layer_results], dim=0) # (n_layers, seq_len, dim)
-
-        # save full sequence
-        features = ( features*weights[:, None] ).sum(dim=0) # (seq_len, dim)
+        if torch.allclose(weights, SPEAKER_INFORMATION_WEIGHTS):
+            # use fastpath
+            features = self.wavlm.extract_features(wav_input_16khz, output_layer=SPEAKER_INFORMATION_LAYER, ret_layer_results=False)[0]
+            features = features.squeeze(0)
+        else:
+            # use slower weighted
+            rep, layer_results = self.wavlm.extract_features(wav_input_16khz, output_layer=self.wavlm.cfg.encoder_layers, ret_layer_results=True)[0]
+            features = torch.cat([x.transpose(0, 1) for x, _ in layer_results], dim=0) # (n_layers, seq_len, dim)
+            # save full sequence
+            features = ( features*weights[:, None] ).sum(dim=0) # (seq_len, dim)
+        
         return features
 
 
@@ -134,8 +144,8 @@ class KNeighborsVC(nn.Module):
             - converted waveform of shape (T,)
         """
         device = torch.device(device) if device is not None else self.device
-        if synth_set is None: 
-            synth_set = matching_set.to(device)
+        if synth_set is None: synth_set = matching_set.to(device)
+        else: synth_set = synth_set.to(device)
         matching_set = matching_set.to(device)
         query_seq = query_seq.to(device)
 
