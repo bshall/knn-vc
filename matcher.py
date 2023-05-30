@@ -133,15 +133,18 @@ class KNeighborsVC(nn.Module):
         Returns:
             - converted waveform of shape (T,)
         """
-        if synth_set is None: synth_set = matching_set
         device = torch.device(device) if device is not None else self.device
+        if synth_set is None: 
+            synth_set = matching_set.to(device)
+        matching_set = matching_set.to(device)
+        query_seq = query_seq.to(device)
 
         if target_duration is not None:
             target_samples = int(target_duration*self.sr)
             scale_factor = (target_samples/self.hop_length) / query_seq.shape[0] # n_targ_feats / n_input_feats
             query_seq = F.interpolate(query_seq.T[None], scale_factor=scale_factor, mode='linear')[0].T
 
-        dists = fast_cosine_dist(query_seq.to(device), matching_set.to(device), device=device)
+        dists = fast_cosine_dist(query_seq, matching_set, device=device)
         best = dists.topk(k=topk, largest=False, dim=-1)
         out_feats = synth_set[best.indices].mean(dim=1)
         
