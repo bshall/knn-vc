@@ -62,6 +62,8 @@ Under the releases tab of this repo we provide three checkpoints:
 - The HiFiGAN vocoder trained on layer 6 of WavLM features.
 - The HiFiGAN vocoder trained on **prematched** layer 6 of WavLM features (the best model in the paper).
 
+For the HiFiGAN models we provide both the generator inference checkpoint and full training checkpoint with optimizer states.
+
 The performance on the LibriSpeech dev-clean set is summarized:
 
 | checkpoint | WER (%) | CER (%) | EER (%) |
