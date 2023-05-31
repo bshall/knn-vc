@@ -4,7 +4,7 @@ The official code repo! This repo contains training and inference code for kNN-V
 
 Links:
 
-- Arxiv paper: COMING SOON
+- Arxiv paper: [https://arxiv.org/abs/2305.18975](https://arxiv.org/abs/2305.18975)
 - Colab quickstart: COMING SOON
 - Interspeech proceedings: proceedings published in August 2023
 - Demo page with samples: [https://bshall.github.io/knn-vc/](https://bshall.github.io/knn-vc/)
