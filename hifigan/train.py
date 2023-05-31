@@ -98,7 +98,7 @@ def train(rank, a, h):
                               pin_memory=True,
                               drop_last=True)
 
-    alt_melspec = LogMelSpectrogram(h.n_fft, h.num_mels, h.sampling_rate, h.hop_size, h.win_size, h.fmin).to(device)
+    alt_melspec = LogMelSpectrogram(h.n_fft, h.num_mels, h.sampling_rate, h.hop_size, h.win_size, h.fmin, h.fmax).to(device)
 
     if rank == 0:
         validset = MelDataset(valid_df, h.segment_size, h.n_fft, h.num_mels,
