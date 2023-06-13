@@ -26,7 +26,7 @@ Figure: kNN-VC setup. The source and reference utterance(s) are encoded into sel
 
 We use `torch.hub` to make loading the model easy -- no cloning of the repo needed. The steps to perform inference are simple:
 
-1. **Install dependancies**: we have 3 inference dependencies only `torch`, `torchaudio`, and `numpy`. Python must be at version 3.10 or greater.
+1. **Install dependancies**: we have 3 inference dependencies only `torch`, `torchaudio`, and `numpy`. Python must be at version 3.10 or greater, and torch must be v2.0 or greater.
 2. **Load models**: load the WavLM encoder and HiFiGAN vocoder:
 
 ```python
