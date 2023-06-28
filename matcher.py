@@ -102,11 +102,14 @@ class KNeighborsVC(nn.Module):
         if vad_trigger_level > 1e-3:
             transform = T.Vad(sample_rate=sr, trigger_level=vad_trigger_level)
             x_front_trim = transform(x)
-            waveform_reversed, sr = apply_effects_tensor(x_front_trim, sr, [["reverse"]])
+            # original way, disabled because it lacks windows support
+            #waveform_reversed, sr = apply_effects_tensor(x_front_trim, sr, [["reverse"]])
+            waveform_reversed = torch.flip(x_front_trim, (-1,))
             waveform_reversed_front_trim = transform(waveform_reversed)
-            waveform_end_trim, sr = apply_effects_tensor(
-                waveform_reversed_front_trim, sr, [["reverse"]]
-            )
+            waveform_end_trim = torch.flip(waveform_reversed_front_trim, (-1,))
+            #waveform_end_trim, sr = apply_effects_tensor(
+            #    waveform_reversed_front_trim, sr, [["reverse"]]
+            #)
             x = waveform_end_trim
 
         # extract the representation of each layer
