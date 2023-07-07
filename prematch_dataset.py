@@ -108,8 +108,7 @@ def fast_cosine_dist(source_feats, matching_pool):
 @torch.inference_mode()
 def extract(df: pd.DataFrame, wavlm: nn.Module, device, ls_path: Path, out_path: Path, synth_weights: Tensor, match_weights: Tensor):
     
-    if args.fast_l2: pb = progress_bar(df.iterrows(), total=len(df))
-    else: pb = master_bar(df.iterrows(), total=len(df))
+    pb = progress_bar(df.iterrows(), total=len(df))
 
     for i, row in pb:
         rel_path = Path(row.path).relative_to(ls_path)
@@ -127,7 +126,7 @@ def extract(df: pd.DataFrame, wavlm: nn.Module, device, ls_path: Path, out_path:
 
         matching_pool, synth_pool = path2pools(row.path, wavlm, match_weights, synth_weights, device)
 
-        if args.prematch:
+        if not args.prematch:
             out_feats = source_feats.cpu()
         else:
             dists = fast_cosine_dist(source_feats.cpu(), matching_pool.cpu()).cpu()
