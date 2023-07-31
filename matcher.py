@@ -96,8 +96,13 @@ class KNeighborsVC(nn.Module):
             x: Tensor = path
             sr = self.sr
             if x.dim() == 1: x = x[None]
-        assert sr == self.sr, f"input audio sample rate must be 16kHz. Got {sr}"
-        
+                
+        # replace assert sr == self.sr, f"input audio sample rate must be 16kHz. Got {sr}"
+        if not sr == self.sr :
+            print(f"resample {sr} to {self.sr} in {path}")
+            x = torchaudio.functional.resample(x, orig_freq=sr, new_freq=self.sr)
+            sr = self.sr
+            
         # trim silence from front and back
         if vad_trigger_level > 1e-3:
             transform = T.Vad(sample_rate=sr, trigger_level=vad_trigger_level)
