@@ -11,17 +11,11 @@ from hifigan.utils import AttrDict
 from torch import Tensor
 from torchaudio.sox_effects import apply_effects_tensor
 from wavlm.WavLM import WavLM
+from utils import generate_matrix_from_index
 
 
-SPEAKER_INFORMATION_WEIGHTS = [
-    0, 0, 0, 0, 0, 0,  # layer 0-5
-    1.0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, # layer 15
-    0, 0, 0, 0, 0, 0, # layer 16-21
-    0, # layer 22 
-    0, 0 # layer 23-24
-]
 SPEAKER_INFORMATION_LAYER = 6
+SPEAKER_INFORMATION_WEIGHTS = generate_matrix_from_index(SPEAKER_INFORMATION_LAYER)
 
 
 def fast_cosine_dist(source_feats: Tensor, matching_pool: Tensor, device: str = 'cpu') -> Tensor:
@@ -97,7 +91,6 @@ class KNeighborsVC(nn.Module):
             sr = self.sr
             if x.dim() == 1: x = x[None]
                 
-        # replace assert sr == self.sr, f"input audio sample rate must be 16kHz. Got {sr}"
         if not sr == self.sr :
             print(f"resample {sr} to {self.sr} in {path}")
             x = torchaudio.functional.resample(x, orig_freq=sr, new_freq=self.sr)
