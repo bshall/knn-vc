@@ -11,7 +11,7 @@ from hifigan.utils import AttrDict
 from torch import Tensor
 from torchaudio.sox_effects import apply_effects_tensor
 from wavlm.WavLM import WavLM
-from utils import generate_matrix_from_index
+from knnvc_utils import generate_matrix_from_index
 
 
 SPEAKER_INFORMATION_LAYER = 6
