@@ -85,7 +85,7 @@ class KNeighborsVC(nn.Module):
         # load audio
         if weights == None: weights = self.weighting
         if type(path) in [str, Path]:
-            x, sr = torchaudio.load(path, normalize=True)
+            x, sr = torchaudio.load(path)
         else:
             x: Tensor = path
             sr = self.sr
