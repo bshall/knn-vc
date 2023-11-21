@@ -96,6 +96,7 @@ def train(rank, a, h):
                               sampler=train_sampler,
                               batch_size=h.batch_size,
                               pin_memory=True,
+                              persistent_workers=True,
                               drop_last=True)
 
     alt_melspec = LogMelSpectrogram(h.n_fft, h.num_mels, h.sampling_rate, h.hop_size, h.win_size, h.fmin, h.fmax).to(device)
@@ -110,6 +111,7 @@ def train(rank, a, h):
                                        sampler=None,
                                        batch_size=1,
                                        pin_memory=True,
+                                       persistent_workers=True,
                                        drop_last=True)
 
         sw = SummaryWriter(os.path.join(a.checkpoint_path, 'logs'))
